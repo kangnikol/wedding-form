@@ -12,7 +12,9 @@
   "dependencies": {
     "@ant-design/icons": "^5.1.4",
     "antd": "^5.5.2",
+    "axios": "^1.4.0",
     "dayjs": "^1.11.8",
+    "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-tailwindcss-datepicker": "^1.6.1"

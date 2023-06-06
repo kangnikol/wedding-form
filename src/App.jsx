@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import {
   Button,
   Col,
@@ -13,26 +14,42 @@ import {
   Upload,
 } from "antd"
 import InboxOutlined from "@ant-design/icons/InboxOutlined"
-import { useState } from "react"
+import moment from "moment/moment"
 
 const { Title, Text, Paragraph } = Typography
 const { Dragger } = Upload
 
 function App() {
+  const [fullName, setFullName] = useState("")
+  const [spouseName, setSpouseName] = useState("")
+  const [dob, setDob] = useState(null)
+  const [dobSpouse, setDobSpouse] = useState(null)
+  const [fatherName, setFatherName] = useState("")
+  const [spouseFatherName, setSpouseFatherName] = useState("")
+  const [motherName, setMotherName] = useState("")
+  const [spouseMotherName, setSpouseMotherName] = useState("")
+  const [weddingDate, setWeddingDate] = useState(null)
+  const [weddingLocation, setWeddingLocation] = useState("")
+  const [accountNumber, setAccountNumber] = useState(null)
+  const [accountName, setAccountName] = useState("")
+  const [audiolink, setAudiolink] = useState("")
+  const [fileList, setFileList] = useState([])
+
   const props = {
     name: "file",
     multiple: true,
     action: "/",
     required: true,
     onChange(info) {
+      handleFileChange(info)
       const { status } = info.file
       if (status !== "uploading") {
         console.log(info.file, info.fileList)
       }
       if (status === "done") {
-        message.success(`${info.file.name} file uploaded successfully.`)
+        message.success(`${info.file.name} uploaded.`)
       } else if (status === "error") {
-        message.error(`${info.file.name} file upload failed.`)
+        message.error(`${info.file.name} upload failed.`)
       }
     },
     onDrop(e) {
@@ -40,10 +57,58 @@ function App() {
     },
   }
 
-  const [isDisable, setIsDisable] = useState(true)
-
   const accountHandler = (e) => {
-    if (e.target.value !== "") setIsDisable(false)
+    const { value } = e.target
+    setAccountNumber(value)
+  }
+
+  const handleFileChange = ({ fileList }) => {
+    setFileList(fileList)
+  }
+
+  const dateParser = ({ $D, $M, $y }) => `${$D}-${$M + 1}-${$y}`
+
+  const handleDate = (date, setter) => {
+    const dateString = dateParser(date)
+    setter(dateString)
+  }
+
+  const disabledDate = (current) => {
+    return current && current < moment().endOf("day")
+  }
+
+  const handleSubmit = () => {
+    const data = {
+      fullName,
+      spouseName,
+      dob,
+      dobSpouse,
+      fatherName,
+      spouseFatherName,
+      motherName,
+      spouseMotherName,
+      weddingDate,
+      weddingLocation,
+      fileList,
+      accountNumber,
+      accountName,
+      audiolink,
+    }
+    const requiredFields = [
+      fullName,
+      spouseName,
+      fatherName,
+      motherName,
+      weddingDate,
+      weddingLocation,
+      accountName,
+    ]
+    const allFieldsAreFilled = requiredFields.every((field) => field)
+    if (!allFieldsAreFilled) {
+      message.error("Mohon lengkapi semua data yang diisi")
+      return
+    }
+    sessionStorage.setItem("data", JSON.stringify(data))
   }
 
   return (
@@ -60,74 +125,98 @@ function App() {
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
-                        name="full_name"
+                        name="Full Name"
                         label="Nama Lengkap"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Nama Lengkap" />
+                        <Input
+                          placeholder="Nama Lengkap"
+                          onChange={(e) => setFullName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="spouse_name"
+                        name="Nama Pasangan"
                         label="Nama Pasangan"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Nama Pasangan" />
+                        <Input
+                          placeholder="Nama Pasangan"
+                          onChange={(e) => setSpouseName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="dob"
+                        name="Tanggal Lahir"
                         label="Tanggal Lahir"
                         rules={[{ required: true }]}
                       >
-                        <DatePicker placeholder="Pilih Tanggal" />
+                        <DatePicker
+                          placeholder="Pilih Tanggal"
+                          onChange={(date) => handleDate(date, setDob)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="dob_spouse"
+                        name="Tanggal Lahir Pasangan"
                         label="Tanggal Lahir Pasangan"
                         rules={[{ required: true }]}
                       >
-                        <DatePicker placeholder="Pilih Tanggal" />
+                        <DatePicker
+                          placeholder="Pilih Tanggal"
+                          onChange={(date) => handleDate(date, setDobSpouse)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="father_name"
+                        name="Nama Ayah"
                         label="Nama Ayah"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Nama Ayah" />
+                        <Input
+                          placeholder="Nama Ayah"
+                          onChange={(e) => setFatherName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="spouse_father_name"
-                        label="Ayah Pasangan"
+                        name="Nama Ayah Pasangan"
+                        label="Nama Ayah Pasangan"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Ayah Pasangan" />
+                        <Input
+                          placeholder="Nama Ayah Pasangan"
+                          onChange={(e) => setSpouseFatherName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="mother_name"
+                        name="Nama Ibu"
                         label="Nama Ibu"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Nama Ibu" />
+                        <Input
+                          placeholder="Nama Ibu"
+                          onChange={(e) => setMotherName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
-                        name="spouse_mother_name"
+                        name="Nama Ibu Pasangan"
                         label="Nama Ibu Pasangan"
                         rules={[{ required: true }]}
                       >
-                        <Input placeholder="Nama Ibu Pasangan" />
+                        <Input
+                          placeholder="Nama Ibu Pasangan"
+                          onChange={(e) => setSpouseMotherName(e.target.value)}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -140,21 +229,28 @@ function App() {
                     label="Tanggal Pernikahan"
                     rules={[{ required: true }]}
                   >
-                    <DatePicker placeholder="Pilih Tanggal" />
+                    <DatePicker
+                      placeholder="Pilih Tanggal"
+                      onChange={(date) => handleDate(date, setWeddingDate)}
+                      disabledDate={disabledDate}
+                    />
                   </Form.Item>
                   <Form.Item
                     name="wedding_location"
                     label="Lokasi Pernikahan"
                     rules={[{ required: true }]}
                   >
-                    <Input placeholder="Salin URL Google Maps" />
+                    <Input
+                      placeholder="Salin URL Google Maps"
+                      onChange={(e) => setWeddingLocation(e.target.value)}
+                    />
                   </Form.Item>
                   <Form.Item
                     label="Unggah Foto"
                     name="pic"
                     rules={[{ required: true }]}
                   >
-                    <Dragger {...props}>
+                    <Dragger fileList={fileList} {...props}>
                       <p className="ant-upload-drag-icon">
                         <InboxOutlined />
                       </p>
@@ -168,21 +264,24 @@ function App() {
                     Informasi Tambahan
                   </Title>
                   <Form.Item
-                    name="account_number"
+                    name="No. Rekening"
                     label={
                       <div className="gap-2">
                         <span>Nomor Rekening </span>
                         <Text type="danger"> (opsional)</Text>
                       </div>
                     }
+                    rules={[
+                      {
+                        type: "number",
+                      },
+                    ]}
                   >
-                    <InputNumber
-                      min={1}
-                      max={16}
+                    <Input
                       className="w-[200px]"
-                      controls={false}
                       placeholder="No. Rekening"
                       onChange={accountHandler}
+                      value={accountNumber}
                     />
                   </Form.Item>
                   <Form.Item
@@ -192,7 +291,8 @@ function App() {
                   >
                     <Input
                       placeholder="Atas Nama Rekening"
-                      disabled={isDisable ? true : false}
+                      disabled={accountNumber === ""}
+                      onChange={(e) => setAccountName(e.target.value)}
                     />
                   </Form.Item>
                   <Form.Item
@@ -204,12 +304,17 @@ function App() {
                       </div>
                     }
                   >
-                    <Input placeholder="Salin URL Youtube" />
+                    <Input
+                      placeholder="Salin URL Youtube"
+                      onChange={(e) => setAudiolink(e.target.value)}
+                    />
                   </Form.Item>
                 </div>
                 <div className="py-4">
                   <Form.Item>
-                    <Button className="bg-white">Submit</Button>
+                    <Button className="bg-white" onClick={handleSubmit}>
+                      Submit
+                    </Button>
                   </Form.Item>
                 </div>
               </Form>
